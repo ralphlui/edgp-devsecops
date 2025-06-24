@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: my-configmap
+data:
+  SPRING_PROFILES_ACTIVE: sit
+  FRONTEND_URL: https://devplify.com
+  NOTIFICATION_URL: https://devplify.com/api/notifications
+  ORGANIZATION_URL: https://devplify.com/api/orgs
+  ADMIN_URL: https://devplify.com/api/admin
+  AUDIT_SQS_URL: https://sqs.ap-southeast-1.amazonaws.com/292344568326/Audit-Action
+  CLIENT_INVITATION_USER_URL: https://devplify.com/invitation
+  AWS_REGION: ap-southeast-1
+  SQS_QUEUE_NAME: Audit-Action
+  PENTEST_ENABLE: "false"
+  SECURE_ENABLE: "true"
+  DEMO_ENABLE: "false"

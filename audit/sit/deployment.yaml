@@ -1,0 +1,87 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: edgp-app-audit
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: edgp-app-audit
+  template:
+    metadata:
+      labels:
+        app: edgp-app-audit
+    spec:
+      containers:
+        - name: edgp-app-audit
+          image: public.ecr.aws/q1b5w5y6/edgp-app-audit:VERSION
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8086
+          env:
+            - name: AWS_REGION
+              valueFrom:
+                configMapKeyRef:
+                  name: my-configmap
+                  key: AWS_REGION
+            - name: SPRING_PROFILES_ACTIVE
+              valueFrom:
+                configMapKeyRef:
+                  name: my-configmap
+                  key: SPRING_PROFILES_ACTIVE
+            - name: SQS_QUEUE_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: my-configmap
+                  key: SQS_QUEUE_NAME
+            - name: SQS_QUEUE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: my-configmap
+                  key: AUDIT_SQS_URL
+            - name: CLIENT_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: my-configmap
+                  key: FRONTEND_URL
+            - name: aws_access_key_id
+              valueFrom:
+                secretKeyRef:
+                  name: my-secret
+                  key: aws_edgp_access_key_id
+            - name: aws_secret_key_id
+              valueFrom:
+                secretKeyRef:
+                  name: my-secret
+                  key: aws_edgp_secret_key_id
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: my-secret
+                  key: aws_edgp_access_key_id
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: my-secret
+                  key: aws_edgp_secret_key_id
+          resources:
+           requests:
+             cpu: "50m"
+             memory: "250Mi"
+           limits:
+             cpu: "350m"
+             memory: "500Mi"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: audit-k8s-service
+spec:
+  selector:
+    app: edgp-app-audit
+  ports:
+    - protocol: TCP
+      port: 8086
+      targetPort: 8086
+  type: NodePort

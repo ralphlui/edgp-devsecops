@@ -1,0 +1,107 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: edgp-app-admin
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: edgp-app-admin
+  template:
+    metadata:
+      labels:
+        app: edgp-app-admin
+    spec:
+      containers:
+        - name: edgp-app-admin
+          image: public.ecr.aws/q1b5w5y6/edgp-app-admin:VERSION
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8081
+          env:
+            - name: AWS_REGION
+              valueFrom:
+                configMapKeyRef:
+                  name: my-configmap
+                  key: AWS_REGION
+            - name: SPRING_PROFILES_ACTIVE
+              valueFrom:
+                configMapKeyRef:
+                  name: my-configmap
+                  key: SPRING_PROFILES_ACTIVE
+            - name: AUDIT_SQS_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: my-configmap
+                  key: AUDIT_SQS_URL
+            - name: CLIENT_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: my-configmap
+                  key: FRONTEND_URL
+            - name: PENTEST_ENABLE
+              valueFrom:
+                configMapKeyRef:
+                  name: my-configmap
+                  key: PENTEST_ENABLE
+            - name: SECURE_ENABLE
+              valueFrom:
+                configMapKeyRef:
+                  name: my-configmap
+                  key: SECURE_ENABLE
+            - name: DEMO_ENABLE
+              valueFrom:
+                configMapKeyRef:
+                  name: my-configmap
+                  key: DEMO_ENABLE
+            - name: NOTIFICATION_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: my-configmap
+                  key: NOTIFICATION_URL
+            - name: ORGANIZATION_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: my-configmap
+                  key: ORGANIZATION_URL
+            - name: aws_access_key_id
+              valueFrom:
+                secretKeyRef:
+                  name: my-secret
+                  key: aws_edgp_access_key_id
+            - name: aws_secret_key_id
+              valueFrom:
+                secretKeyRef:
+                  name: my-secret
+                  key: aws_edgp_secret_key_id
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: my-secret
+                  key: aws_edgp_access_key_id
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: my-secret
+                  key: aws_edgp_secret_key_id
+          resources:
+           requests:
+             cpu: "50m"
+             memory: "250Mi"
+           limits:
+             cpu: "350m"
+             memory: "500Mi"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: admin-k8s-service
+spec:
+  selector:
+    app: edgp-app-admin
+  ports:
+    - protocol: TCP
+      port: 8081
+      targetPort: 8081
+  type: NodePort
